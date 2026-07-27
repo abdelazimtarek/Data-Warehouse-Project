@@ -1,0 +1,24 @@
+
+select count(*) 
+	as cust_info
+from bronze.crm_cust_info;
+
+select count(*) 
+	as prod_info 
+from Bronze.crm_prod_info ;
+
+select count(*)
+	as sales_details
+from Bronze.crm_sales_details;
+
+select count(*) 
+	as cust_az12
+from Bronze.erp_cust_az12;
+
+select count(*) 
+	as loc_a101
+from Bronze.erp_loc_a101;
+
+select count(*) 
+	as px_car_g1v2
+from Bronze.erp_px_cat_g1v2;
