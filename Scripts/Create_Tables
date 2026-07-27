@@ -41,9 +41,9 @@ Create table bronze.crm_sales_details (
 	sls_order_date int,
 	sls_ship_date int,
 	sls_due_date int,
-	sls_sales float,
+	sls_sales int,
 	sls_quantity int,
-	sls_price float
+	sls_price int
 );
 
 --CUST_AZ12 table
