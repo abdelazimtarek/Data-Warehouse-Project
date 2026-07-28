@@ -63,11 +63,11 @@ if OBJECT_ID ('bronze.crm_cust_info','u') is not null
 drop table bronze.crm_cust_info
 
 Create table bronze.crm_cust_info (
-	cut_id int,
+	cst_id int,
 	cst_key nvarchar(50),
 	cst_first_name nvarchar(50),
 	cst_last_name nvarchar(50),
-	cst_material_status nvarchar(50),
+	cst_marial_status nvarchar(50),
 	cst_gndr nvarchar(50),
 	cst_create_date date
 );
@@ -94,7 +94,6 @@ drop table bronze.crm_sales_details
 Create table bronze.crm_sales_details (
 	sls_ord_num nvarchar(50),
 	sls_prd_key nvarchar(50),
-	prd_name nvarchar(50),
 	sls_cust_id int,
 	sls_order_date int,
 	sls_ship_date int,
