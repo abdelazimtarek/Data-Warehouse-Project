@@ -1,0 +1,54 @@
+/******************************************************************************
+    Purpose:
+    Recreate the Data_Warehouse database from scratch.
+
+    Steps:
+    1. Switch to the master database.
+    2. Check if Data_Warehouse already exists.
+    3. If it exists, disconnect all active users, roll back open transactions,
+       and drop the database.
+    4. Create a new Data_Warehouse database.
+    5. Create the Bronze, Silver, and Gold schemas.
+
+    WARNING: This script permanently deletes any database named 'Data_Warehouse' if it exists.
+    All data in that database will be lost and cannot be recovered unless a backup exists.
+******************************************************************************/
+
+-- Switch to the master database
+USE master;
+GO
+
+-- Drop the database if it already exists
+IF EXISTS (
+    SELECT 1
+    FROM sys.databases
+    WHERE name = 'Data_Warehouse'
+)
+BEGIN
+    -- Force all users to disconnect and roll back any uncommitted transactions
+    ALTER DATABASE Data_Warehouse
+    SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+
+    -- Delete the existing database
+    DROP DATABASE Data_Warehouse;
+END
+GO
+
+-- Create the database
+CREATE DATABASE Data_Warehouse;
+GO
+
+-- Switch to the newly created database
+USE Data_Warehouse;
+GO
+
+-- Create the project schemas
+CREATE SCHEMA Bronze;
+GO
+
+CREATE SCHEMA Silver;
+GO
+
+CREATE SCHEMA Gold;
+GO
+
