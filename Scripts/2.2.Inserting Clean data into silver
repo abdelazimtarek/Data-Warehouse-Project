@@ -1,0 +1,37 @@
+--Data cleaning
+--Remove nulls or duplicates in cst_id
+--Remove unwanted spaces
+--Refining columns gndr, marial_status
+insert into Silver.crm_cust_info(
+	cst_id,
+	cst_key,
+	cst_first_name,
+	cst_last_name,
+	cst_marial_status,
+	cst_gndr,
+	cst_create_date
+)
+select
+	cst_id,
+	cst_key,
+	--Removing unwanted spaces
+	TRIM(cst_first_name) as cst_first_name,
+	TRIM(cst_last_name) as cst_last_name,
+	case 
+	when upper(trim(cst_marial_status)) = 's' then 'single'
+	when upper(trim(cst_marial_status)) = 'm' then 'married'
+	else 'n/a'end cst_marial_status,
+	case 
+	when upper(trim(cst_gndr)) = 'M' then 'male'
+	when upper(trim(cst_gndr)) = 'F' then 'female'
+	else 'n/a'
+	end cst_gndr,
+	cst_create_date
+from (
+	select
+		*,
+		ROW_NUMBER() over(partition by cst_id order by cst_create_date desc) as flaglast
+	from Bronze.crm_cust_info
+	where cst_id is not null
+	)t
+where flaglast = 1
