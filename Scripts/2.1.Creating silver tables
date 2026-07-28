@@ -20,13 +20,14 @@ drop table silver.crm_prod_info
 
 Create table silver.crm_prod_info (
 	prd_id int,
+	cat_id nvarchar(50),
 	prd_key nvarchar(50),
 	prd_name nvarchar(50),
-	prd_cost float,
-	prod_line nvarchar(50),
-	prd_start_date datetime,
-	prd_end_date datetime,
-	dwh_create_date datetime default getdate()
+	prd_cost int,
+	prd_line nvarchar(50),
+	prd_start_date date,
+	prd_end_date date,
+	dwh_create_date datetime2 default getdate()
 );
 
 --Sales details table
