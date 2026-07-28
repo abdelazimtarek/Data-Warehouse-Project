@@ -5,7 +5,7 @@ if OBJECT_ID ('bronze.crm_cust_info','u') is not null
 drop table bronze.crm_cust_info
 
 Create table bronze.crm_cust_info (
-	cut_id int,
+	cst_id int,
 	cst_key nvarchar(50),
 	cst_first_name nvarchar(50),
 	cst_last_name nvarchar(50),
