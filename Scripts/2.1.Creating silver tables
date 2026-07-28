@@ -37,7 +37,6 @@ drop table silver.crm_sales_details
 Create table silver.crm_sales_details (
 	sls_ord_num nvarchar(50),
 	sls_prd_key nvarchar(50),
-	prd_name nvarchar(50),
 	sls_cust_id int,
 	sls_order_date int,
 	sls_ship_date int,
