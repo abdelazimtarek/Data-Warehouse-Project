@@ -1,68 +1,121 @@
-use Data_Warehouse
+CREATE OR ALTER PROCEDURE bronze.load_Bronze 
+AS
+BEGIN
+	DECLARE @start_time DATETIME, @end_time DATETIME
+	BEGIN TRY
+		--Inserting data from cust_info to Bronze.crm_cust_info
+		print'========================================================';
+		print 'Loading Bronze layer CRM';
+		print'========================================================';
+		/*-----------------------------------------------------------------------------*/
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.crm_cust_info';
+		Truncate table Bronze.crm_cust_info;
+		print 'Inserting Bronze.crm_cust_info';
+		Bulk insert Bronze.crm_cust_info
+		from 'C:\Users\NS\Desktop\datasets\source_crm\cust_info.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.crm_prod_info
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.crm_prod_info';
+		Truncate table Bronze.crm_prod_info;
 
---Inserting data from cust_info to Bronze.crm_cust_info
-Truncate table Bronze.crm_cust_info
+		print 'Inserting Bronze.crm_prod_info';
+		Bulk insert Bronze.crm_prod_info
+		from 'C:\Users\NS\Desktop\datasets\source_crm\prd_info.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.crm_sales_details
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.crm_sales_details';
+		Truncate table Bronze.crm_sales_details;
 
-Bulk insert Bronze.crm_cust_info
-from 'C:\Users\NS\Desktop\datasets\source_crm\cust_info.csv'
-with (
-	firstrow = 2,
-	fieldterminator = ',',
-	tablock
-);
+		print 'inserting Bronze.crm_sales_details';
+		Bulk insert Bronze.crm_sales_details
+		from 'C:\Users\NS\Desktop\datasets\source_crm\sales_details.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		/*===================================================================================================*/
 
---Inserting data from prod_info to Bronze.crm_prod_info
-Truncate table Bronze.crm_prod_info
+		print'========================================================';
+		print 'Loading Bronze layer CRM';
+		print'========================================================';
+		/*-----------------------------------------------------------------------------*/
+		--Inserting data from prod_info to Bronze.erp_cust_az12
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.erp_cust_az12'
+		Truncate table Bronze.erp_cust_az12;
 
-Bulk insert Bronze.crm_prod_info
-from 'C:\Users\NS\Desktop\datasets\source_crm\prd_info.csv'
-with (
-	firstrow = 2,
-	fieldterminator = ',',
-	tablock
-);
+		print 'Inserting Bronze.erp_cust_az12'
+		Bulk insert Bronze.erp_cust_az12
+		from 'C:\Users\NS\Desktop\datasets\source_erp\CUST_AZ12.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+' '+ 'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.erp_loc_a101
+		SET @start_time = GETDATE()
+		print 'Trancating erp_loc_a101';
+		Truncate table Bronze.erp_loc_a101;
 
---Inserting data from prod_info to Bronze.crm_sales_details
-Truncate table Bronze.crm_sales_details
+		print 'Inserting erp_loc_a101';
+		Bulk insert Bronze.erp_loc_a101
+		from 'C:\Users\NS\Desktop\datasets\source_erp\LOC_A101.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.erp_px_cat_g1v2
+		SET @start_time = GETDATE()
+		print 'Trancating erp_px_cat_g1v2';
+		Truncate table Bronze.erp_px_cat_g1v2;
 
-Bulk insert Bronze.crm_sales_details
-from 'C:\Users\NS\Desktop\datasets\source_crm\sales_details.csv'
-with (
-	firstrow = 2,
-	fieldterminator = ',',
-	tablock
-);
+		print 'Inserting erp_px_cat_g1v2';
+		Bulk insert Bronze.erp_px_cat_g1v2
+		from 'C:\Users\NS\Desktop\datasets\source_erp\PX_CAT_G1V2.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+' ' +'Seconds';
+		print'---------------------------------------------------------------------'
+	END TRY
+	BEGIN CATCH
+		print'============================================='
+		Print'ERROR OCCURED DURING LOADING BRONZE LAYER.'
+		print'Error message: '+ ERROR_MESSAGE();
+		print'Error number: '+ CAST(ERROR_NUMBER() as NVARCHAR);
+		print'============================================='
+	END CATCH
+END
 
-/*===================================================================================================*/
---Inserting data from prod_info to Bronze.erp_cust_az12
-Truncate table Bronze.erp_cust_az12
-
-Bulk insert Bronze.erp_cust_az12
-from 'C:\Users\NS\Desktop\datasets\source_erp\CUST_AZ12.csv'
-with (
-	firstrow = 2,
-	fieldterminator = ',',
-	tablock
-);
-
---Inserting data from prod_info to Bronze.erp_loc_a101
-Truncate table Bronze.erp_loc_a101
-
-Bulk insert Bronze.erp_loc_a101
-from 'C:\Users\NS\Desktop\datasets\source_erp\LOC_A101.csv'
-with (
-	firstrow = 2,
-	fieldterminator = ',',
-	tablock
-);
-
---Inserting data from prod_info to Bronze.erp_px_cat_g1v2
-Truncate table Bronze.erp_px_cat_g1v2
-
-Bulk insert Bronze.erp_px_cat_g1v2
-from 'C:\Users\NS\Desktop\datasets\source_erp\PX_CAT_G1V2.csv'
-with (
-	firstrow = 2,
-	fieldterminator = ',',
-	tablock
-);
+exec  bronze.load_Bronze 
