@@ -8,7 +8,7 @@ Create table silver.crm_cust_info (
 	cst_key nvarchar(50),
 	cst_first_name nvarchar(50),
 	cst_last_name nvarchar(50),
-	cst_material_status nvarchar(50),
+	cst_marial_status nvarchar(50),
 	cst_gndr nvarchar(50),
 	cst_create_date date,
 	dwh_create_date datetime default getdate()
