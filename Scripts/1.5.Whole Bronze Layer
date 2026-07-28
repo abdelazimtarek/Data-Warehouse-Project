@@ -255,5 +255,6 @@ BEGIN
 		print'============================================='
 	END CATCH
 END
-
-exec  bronze.load_Bronze 
+GO
+exec  bronze.load_Bronze;
+GO
