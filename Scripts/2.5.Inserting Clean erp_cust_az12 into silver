@@ -1,0 +1,16 @@
+insert into Silver.erp_cust_az12(cid,bdate,gen)
+
+select
+	case when cid like 'NAS%'then substring(cid, 4, len(cid))
+		else cid
+	end as cid,
+
+	case when bdate > getdate() then null
+		else bdate
+	end as bdate,
+
+	case when upper(trim(gen)) in ('F', 'FEMALE') then 'female'
+		when upper(trim(gen)) in ('M', 'MALE') then 'male'
+		else 'n/a'
+	end as gen
+from Bronze.erp_cust_az12
