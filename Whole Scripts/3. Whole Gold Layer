@@ -1,4 +1,6 @@
 --Creating Customer Dimension View
+if object_ID('Gold.dim_customers','U') is not null
+	drop view Gold.dim_customers
 create view Gold.dim_customers
 as
 select
@@ -21,6 +23,9 @@ left join Silver.erp_loc_a101 la
 on ci.cst_key = la.cid
 
 --Creating Product Dimension View
+if object_ID('Gold.dim_products','U') is not null
+	drop view Gold.dim_products
+
 create view Gold.dim_products
 as
 select
@@ -41,6 +46,8 @@ on pn.cat_id = pc.id
 where prd_end_date is null
 
 --Creating Fact Sales View
+if object_ID('Gold.fact_sales ','U') is not null
+	drop view Gold.fact_sales 
 
 create view Gold.fact_sales 
 as
