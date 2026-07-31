@@ -1,1 +1,260 @@
 
+--Creating the data warehouse
+/******************************************************************************
+    Purpose:
+    Recreate the Data_Warehouse database from scratch.
+
+    Steps:
+    1. Switch to the master database.
+    2. Check if Data_Warehouse already exists.
+    3. If it exists, disconnect all active users, roll back open transactions,
+       and drop the database.
+    4. Create a new Data_Warehouse database.
+    5. Create the Bronze, Silver, and Gold schemas.
+
+    WARNING: This script permanently deletes any database named 'Data_Warehouse' if it exists.
+    All data in that database will be lost and cannot be recovered unless a backup exists.
+******************************************************************************/
+
+-- Switch to the master database
+USE master;
+GO
+
+-- Drop the database if it already exists
+IF EXISTS (
+    SELECT 1
+    FROM sys.databases
+    WHERE name = 'Data_Warehouse'
+)
+BEGIN
+    -- Force all users to disconnect and roll back any uncommitted transactions
+    ALTER DATABASE Data_Warehouse
+    SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+
+    -- Delete the existing database
+    DROP DATABASE Data_Warehouse;
+END
+GO
+
+-- Create the database
+CREATE DATABASE Data_Warehouse;
+GO
+
+-- Switch to the newly created database
+USE Data_Warehouse;
+GO
+
+-- Create the project schemas
+CREATE SCHEMA Bronze;
+GO
+
+CREATE SCHEMA Silver;
+GO
+
+CREATE SCHEMA Gold;
+GO
+
+/*==========================================*/
+--Creating Tables
+/*==========================================*/
+
+--Customer information table
+if OBJECT_ID ('bronze.crm_cust_info','u') is not null
+drop table bronze.crm_cust_info
+
+Create table bronze.crm_cust_info (
+	cst_id int,
+	cst_key nvarchar(50),
+	cst_first_name nvarchar(50),
+	cst_last_name nvarchar(50),
+	cst_marial_status nvarchar(50),
+	cst_gndr nvarchar(50),
+	cst_create_date date
+);
+
+--Product information table
+if OBJECT_ID ('bronze.crm_prod_info','u') is not null
+drop table bronze.crm_prod_info
+
+Create table bronze.crm_prod_info (
+	prd_id int,
+	prd_key nvarchar(50),
+	prd_name nvarchar(50),
+	prd_cost float,
+	prod_line nvarchar(50),
+	prd_start_date datetime,
+	prd_end_date datetime
+);
+
+--Sales details table
+if OBJECT_ID ('bronze.crm_sales_details','u') is not null
+drop table bronze.crm_sales_details
+
+
+Create table bronze.crm_sales_details (
+	sls_ord_num nvarchar(50),
+	sls_prd_key nvarchar(50),
+	sls_cust_id int,
+	sls_order_date int,
+	sls_ship_date int,
+	sls_due_date int,
+	sls_sales int,
+	sls_quantity int,
+	sls_price int
+);
+
+--CUST_AZ12 table
+if OBJECT_ID ('bronze.erp_cust_az12','u') is not null
+drop table bronze.erp_cust_az12
+
+
+Create table bronze.erp_cust_az12 (
+	cid nvarchar(50),
+	bdate date,
+	gen nvarchar(50)
+);
+
+--Location_A101 table
+if OBJECT_ID ('bronze.erp_loc_a101','u') is not null
+drop table bronze.erp_loc_a101
+
+Create table bronze.erp_loc_a101 (
+	cid nvarchar(50),
+	cntry nvarchar(50)
+);
+
+--CUST_AZ12 table
+if OBJECT_ID ('bronze.erp_px_cat_g1v2','u') is not null
+drop table bronze.erp_px_cat_g1v2
+
+Create table bronze.erp_px_cat_g1v2 (
+	id nvarchar(50),
+	cat nvarchar(50),
+	subcat nvarchar(50),
+	maintenance nvarchar(50)
+);
+/*==========================================*/
+--Stored Procedure for loading data
+/*==========================================*/
+CREATE OR ALTER PROCEDURE bronze.load_Bronze 
+AS
+BEGIN
+	DECLARE @start_time DATETIME, @end_time DATETIME
+	BEGIN TRY
+		--Inserting data from cust_info to Bronze.crm_cust_info
+		print'========================================================';
+		print 'Loading Bronze layer CRM';
+		print'========================================================';
+		/*-----------------------------------------------------------------------------*/
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.crm_cust_info';
+		Truncate table Bronze.crm_cust_info;
+		print 'Inserting Bronze.crm_cust_info';
+		Bulk insert Bronze.crm_cust_info
+		from 'C:\Users\NS\Desktop\datasets\source_crm\cust_info.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.crm_prod_info
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.crm_prod_info';
+		Truncate table Bronze.crm_prod_info;
+
+		print 'Inserting Bronze.crm_prod_info';
+		Bulk insert Bronze.crm_prod_info
+		from 'C:\Users\NS\Desktop\datasets\source_crm\prd_info.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.crm_sales_details
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.crm_sales_details';
+		Truncate table Bronze.crm_sales_details;
+
+		print 'inserting Bronze.crm_sales_details';
+		Bulk insert Bronze.crm_sales_details
+		from 'C:\Users\NS\Desktop\datasets\source_crm\sales_details.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		/*===================================================================================================*/
+
+		print'========================================================';
+		print 'Loading Bronze layer CRM';
+		print'========================================================';
+		/*-----------------------------------------------------------------------------*/
+		--Inserting data from prod_info to Bronze.erp_cust_az12
+		SET @start_time = GETDATE()
+		print 'Trancating Bronze.erp_cust_az12'
+		Truncate table Bronze.erp_cust_az12;
+
+		print 'Inserting Bronze.erp_cust_az12'
+		Bulk insert Bronze.erp_cust_az12
+		from 'C:\Users\NS\Desktop\datasets\source_erp\CUST_AZ12.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+' '+ 'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.erp_loc_a101
+		SET @start_time = GETDATE()
+		print 'Trancating erp_loc_a101';
+		Truncate table Bronze.erp_loc_a101;
+
+		print 'Inserting erp_loc_a101';
+		Bulk insert Bronze.erp_loc_a101
+		from 'C:\Users\NS\Desktop\datasets\source_erp\LOC_A101.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+ ' '+'Seconds';
+		print'---------------------------------------------------------------------'
+		--Inserting data from prod_info to Bronze.erp_px_cat_g1v2
+		SET @start_time = GETDATE()
+		print 'Trancating erp_px_cat_g1v2';
+		Truncate table Bronze.erp_px_cat_g1v2;
+
+		print 'Inserting erp_px_cat_g1v2';
+		Bulk insert Bronze.erp_px_cat_g1v2
+		from 'C:\Users\NS\Desktop\datasets\source_erp\PX_CAT_G1V2.csv'
+		with (
+			firstrow = 2,
+			fieldterminator = ',',
+			tablock
+		);
+		SET @end_time = GETDATE()
+		print'Execution Duration: ' + cast(datediff(second, @start_time, @end_time) as nvarchar)+' ' +'Seconds';
+		print'---------------------------------------------------------------------'
+	END TRY
+	BEGIN CATCH
+		print'============================================='
+		Print'ERROR OCCURED DURING LOADING BRONZE LAYER.'
+		print'Error message: '+ ERROR_MESSAGE();
+		print'Error number: '+ CAST(ERROR_NUMBER() as NVARCHAR);
+		print'============================================='
+	END CATCH
+END
+GO
+exec  bronze.load_Bronze;
+GO
